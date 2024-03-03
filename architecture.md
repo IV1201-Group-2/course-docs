@@ -312,11 +312,15 @@
 
 - **Decision:** Layered architecture
 
-  - **Time:** 2024-01-31
-  - **Reasoning:** All microservices written in Go should have a layered architecture. The presentation layer is handled by the framework of choice while the service layer implements the public API and the database layer handles interactions with a real or mock database. The model layer strictly contains structures and functions that model our application architecture (database objects, API responses, etc).
+  - **Time:** 2024-01-31 (revised: 2024-02-27)
+  - **Reasoning:** All microservices written in Go should have a layered architecture.
+    - **The API layer** is the topmost layer in the stack. It handles API routing, validation of user data and presentation of the results produced by the lower layers.
+    - **The service layer** implements the business logic of the application. It receives data from the API layer and requests data from the database layer.
+    - **The model layer** is closely related to the service layer and contains structures that model API and user data. This layer contains no functions.
+    - **The database layer** handles communication with the database, such as opening a connection, building prepared statements and starting transactions.
   - **Who decided:** Hannes
 
-- **Decision:** Echo framework
+- **Decision:** HTTP routing with the Echo framework
 
   - **Time:** 2024-01-31
   - **Reasoning:** We decided to use the Echo framework for handling HTTP routing and middleware. The framework is a great choice for REST APIs because it has a minimalist design that's simple to understand while being modern, production-tested and very performant. It has built-in middleware to handle recovering from errors, JWT token authentication and more.
@@ -340,12 +344,6 @@
   - **Reasoning:** Go doesn't have an explicit format for documentation like Java but it provides some recommendations (such as "package comments should start with 'The package X does Y'"). Our projects follow all recommendations with comments for all public structures and functions.
   - **Who decided:** Hannes
 
-- **Decision:** .env files
-
-  - **Time:** 2024-02-06
-  - **Reasoning:** Our Go microservices will load environment variables from .env files automatically using godotenv. This allows to set up a development environment easily for multiple users.
-  - **Who decided:** Hannes
-
 - **Decision:** Validation with go-playground/validator
 
   - **Time:** 2024-02-05
@@ -358,9 +356,21 @@
   - **Reasoning:** Go doesn't have a lot of built-in functionality for testing. Testify combined with Echo allows us to simulate HTTP requests and assert certain conditions with only a few lines of code.
   - **Who decided:** Hannes
 
+- **Decision:** Database testing with Testcontainers
+
+  - **Time:** 2024-02-28
+  - **Reasoning:** The project uses a Postgres database, so it's very useful to be able to spin up a Postgres container when testing. Testcontainers requires almost no manual setup other than installing Docker on the local machine or CI runner.
+  - **Who decided:** Hannes
+
 - **Decision:** Linting with golangci-lint
   - **Time:** 2024-02-06
   - **Reasoning:** golangci-lint is an aggregator for Go linters and static analysis tools. It allows us to run 100+ linters automatically and in parallel to ensure as many mistakes in the code are covered as possible. We enable all linters except a few that don't make sense for our project.
+  - **Who decided:** Hannes
+
+- **Decision:** Logging with Logrus
+
+  - **Time:** 2024-02-27
+  - **Reasoning:** Logging should be done with the Logrus framework, which supports multiple log levels and custom configurations. Every Go microservice should support setting at least LOG_LEVEL (for filtering unnecessary output) and LOG_FILE (for outputting to a file).
   - **Who decided:** Hannes
 
 ## Cloud hosting
